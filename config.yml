@@ -1,0 +1,12 @@
+paths:
+  data_raw: ./data/raw/wine-quality.csv
+  data_processed: ./data/processed/processed.pkl
+  mlflow_db: ./mlflow.db
+  mlruns: ./mlruns
+mlflow:
+  artifact_path: sklearn-model
+  model_name: wine_quality_prediction
+  experiment_name: wine_quality_prediction
+ml:
+  target_name: quality
+  random_state: 42

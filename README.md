@@ -1,0 +1,223 @@
+# ML Monitoring
+
+This project demonstrates a complete ML workflow with MLflow and monitoring tools.
+
+The dataset used in this project comes from [ics.uci.edu](http://archive.ics.uci.edu/ml/datasets/Wine+Quality)
+
+## Project Structure
+```
+monitoring_example/
+│
+├── config.yml                 # Project configuration (paths, MLflow settings)
+├── requirements.txt           # Python dependencies
+│
+├── data/
+│   ├── raw/
+│   │   └── wine-quality.csv   # Raw dataset
+│   └── processed/
+│       └── processed.pkl      # Preprocessed dataset (generated)
+│
+├── mlflow.db                  # MLflow SQLite backend (generated)
+├── mlruns/                    # MLflow artifacts (generated)
+│
+├── src/
+│   ├── common.py              # Loads config.yml and resolves paths
+│   ├── mlflow_utils.py        # MLflow configuration
+│   │
+│   ├── training/
+│   │   ├── preprocess_data.py # Data preprocessing
+│   │   ├── train_model.py     # Model training and experiment tracking
+│   │   ├── test_model_load.py # Load latest model and run predictions on a sample from test dataset
+│   │   └── run_training_pipeline.py # Runs the full training pipeline
+│   │
+│   ├── serving/
+│   │   ├── api.py             # FastAPI application
+│   │   ├── inference.py       # Model loading + prediction logic
+│   │   └── schemas.py         # API request/response schemas
+│   │
+│   └── monitoring/
+│       └── prometheus
+│           ├── metrics.py     # Prometheus metrics definitions
+│           └── prometheus.yml # Prometheus configuration
+│
+└── ...
+```
+
+## Configuration
+
+Project configuration (paths, MLflow settings) is defined in `config.yml`.
+The configuration is automatically loaded by `src/common.py`.
+
+## Training Workflow
+
+The training workflow consists of three steps:
+1. Preprocess data
+   * loads the raw dataset
+   * splits train/test data
+   * applies preprocessing (scaling)
+   * saves (X_train, X_test, y_train, y_test, preprocessor) to `data/processed.pkl`
+2. Train models and log experiments with MLflow
+   * runs a small hyperparameter search
+   * logs parameters, metrics, and models
+   * registers the best model in the MLflow model registry 
+3. Load and test the latest registered model
+   * loads the most recent model version
+   * run predictions on a sample from the preprocessed test dataset 
+
+Training should be executed inside Docker so that the same environment is used for both training and serving.
+```shell
+docker compose run --rm train
+```
+
+Artifacts are stored persistently on the host:
+```
+data/processed/
+mlflow.db
+mlruns/
+```
+
+Example output:
+```
+      fixed acidity  volatile acidity  citric acid  residual sugar  ...  sulphates    alcohol  target-true  target-pred
+4656            6.0              0.29         0.41            10.8  ...       0.59  10.966667            7     6.306061
+3659            5.4              0.53         0.16             2.7  ...       0.53  13.200000            8     6.590940
+907             7.1              0.25         0.39             2.1  ...       0.43  12.200000            8     6.364277
+4352            7.3              0.28         0.35             1.6  ...       0.47  10.700000            5     5.751044
+3271            6.5              0.32         0.34             5.7  ...       0.60  12.000000            7     6.415782
+
+[5 rows x 13 columns]
+```
+
+You can inspect experiments and registered models using the MLflow UI:
+```shell
+$ mlflow ui --backend-store-uri sqlite:///mlflow.db
+```
+Open the UI:
+```
+http://localhost:5000
+ ```
+
+## Model Serving with FastAPI
+
+After training and registering the model in MLflow, the model can be exposed as a prediction service using FastAPI.
+
+The API:
+* loads the latest registered model, 
+* loads the preprocessing pipeline,
+* exposes prediction endpoint,
+* exposes monitoring endpoints.
+
+Running the Serving + Monitoring stack
+```shell
+docker compose up api prometheus
+```
+
+This launches:
+* FastAPI inference service
+* Prometheus monitoring service
+
+Open the interactive API documentation:
+```
+http://localhost:8000/docs
+```
+
+### Available Endpoints
+
+#### Root
+```
+GET /
+```
+Returns a simple service description.
+
+#### Health check
+```
+GET /health
+```
+
+Example response:
+```
+{
+  "status": "ok",
+  "model_name": "wine_quality_model",
+  "model_version": "1"
+}
+```
+
+#### Prediction
+
+```
+POST /predict
+```
+
+Example request:
+```
+{
+  "fixed acidity": 7.4,
+  "volatile acidity": 0.7,
+  "citric acid": 0.0,
+  "residual sugar": 1.9,
+  "chlorides": 0.076,
+  "free sulfur dioxide": 11.0,
+  "total sulfur dioxide": 34.0,
+  "density": 0.9978,
+  "pH": 3.51,
+  "sulphates": 0.56,
+  Lalcohol": 9.4
+}
+```
+
+Example response:
+```
+{
+  "predicted_quality": 6.12,
+  "model_name": "wine_quality_model",
+  "model_version": "1"
+}
+```
+
+## Monitoring with Prometheus
+
+Prometheus metrics are exposed by the FastAPI application.
+
+Metrics include:
+* prediction_requests_total: number of inference requests
+* prediction_request_errors_total: number of inference errors
+* prediction_latency_seconds: request latency
+* model_info: service health metrics
+
+Metrics endpoint:
+```
+GET /metrics
+```
+
+Example:
+```
+http://localhost:8000/metrics
+```
+
+Open the Prometheus dashboard:
+```
+http://localhost:9090
+```
+
+## Docker Workflow Summary
+
+Typical workflow:
+
+1. Train the model
+```shell
+docker compose run --rm train
+```
+2. Start serving + monitoring
+```shell
+docker compose up api prometheus
+```
+3. Access services
+   * FastAPI API:
+```
+http://localhost:8000/docs
+```
+   * Prometheus:
+```
+http://localhost:9090
+```

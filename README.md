@@ -66,7 +66,7 @@ The training workflow consists of three steps:
 
 Training should be executed inside Docker so that the same environment is used for both training and serving.
 ```shell
-docker compose run --rm train
+docker compose --profile training run --rm train
 ```
 
 Artifacts are stored persistently on the host:
@@ -206,11 +206,11 @@ Typical workflow:
 
 1. Train the model
 ```shell
-docker compose run --rm train
+docker compose --profile training run --rm train
 ```
 2. Start serving + monitoring
 ```shell
-docker compose up api prometheus
+docker compose up
 ```
 3. Access services
    * FastAPI API:

@@ -1,7 +1,6 @@
-version: "3.10"
-
 services:
   train:
+    profiles: ["training"]
     build: .
     container_name: wine_model_train
     working_dir: /app
@@ -26,8 +25,6 @@ services:
 #      - ./mlflow.db:/app/mlflow.db
 #      - ./config.yml:/app/config.yml
     command: uvicorn src.serving.api:app --host 0.0.0.0 --port 8000
-    depends_on:
-      - train
 
   prometheus:
     image: prom/prometheus:latest

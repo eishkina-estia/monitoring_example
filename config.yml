@@ -1,6 +1,7 @@
 paths:
   data_raw: ./data/raw/wine-quality.csv
   data_processed: ./data/processed/processed.pkl
+  data_monitoring: ./data/monitoring/reference.pkl
   mlflow_db: ./mlflow.db
   mlruns: ./mlruns
 mlflow:

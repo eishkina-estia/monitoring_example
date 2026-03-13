@@ -10,6 +10,7 @@ venv/
 
 # Generated data
 data/processed/
+data/monitoring/
 
 # MLflow artifacts
 mlruns/

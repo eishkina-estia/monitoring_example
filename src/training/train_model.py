@@ -16,23 +16,6 @@ RANDOM_STATE = common.CONFIG['ml']['random_state']
 MODEL_NAME = common.CONFIG['mlflow']['model_name']
 ARTIFACT_PATH = common.CONFIG['mlflow']['artifact_path']
 
-def load_data():
-    """Load the preprocessed training and test sets."""
-    print("Load preprocessed data")
-
-    with open(DATA_PROC_PATH, "rb") as file:
-        X_train, X_test, y_train, y_test, _ = pickle.load(file)
-
-    X_train = X_train.copy()
-    X_test = X_test.copy()
-    y_train = y_train.copy()
-    y_test = y_test.copy()
-
-    print(f"X_train shape: {X_train.shape}")
-    print(f"X_test shape: {X_test.shape}")
-
-    return X_train, X_test, y_train, y_test
-
 def train_and_log_model(model_params, X_train, X_test, y_train, y_test):
     """Train the model, log it to MLflow, and evaluate it."""
 
@@ -54,12 +37,7 @@ def train_and_log_model(model_params, X_train, X_test, y_train, y_test):
 
     # Log metrics to MLflow tracking server
     eval_data = pd.concat([X_test,y_test], axis=1)
-    # print("----------- OK ----------- ")
-    # print(f"X_test: {len(X_test)} rows")
-    # print(f"y_test: {len(y_test)} rows")
-    # print(f"eval_data: {len(eval_data)} rows")
 
-    print(eval_data.head())
     results = mlflow.evaluate(
         model_info.model_uri,
         data=eval_data,
@@ -67,13 +45,11 @@ def train_and_log_model(model_params, X_train, X_test, y_train, y_test):
         model_type="regressor",
         evaluators=["default"]
     )
+
     return results
 
-def train_model():
+def train_model(X_train_processed, X_test_processed, y_train, y_test):
     configure_mlflow()
-
-    # load preprocessed data
-    X_train, X_test, y_train, y_test = load_data()
 
     params_alpha = [0.01, 0.1, 1, 10]
     params_l1_ratio = np.arange(0.0, 1.1, 0.5)
@@ -96,7 +72,7 @@ def train_model():
                 child_run_name = f"{run_name}_{k:02}"
                 with mlflow.start_run(run_name=child_run_name, nested=True) as child_run:
                     model_params = {"alpha": alpha, "l1_ratio": l1_ratio}
-                    results = train_and_log_model(model_params, X_train, X_test, y_train, y_test)
+                    results = train_and_log_model(model_params, X_train_processed, X_test_processed, y_train, y_test)
 
                     rmse = results.metrics["root_mean_squared_error"]
                     r2 = results.metrics["r2_score"]
@@ -116,5 +92,3 @@ def train_model():
     print(f"Version: {mv.version}")
     print(f"Source: {mv.source}")
 
-if __name__ == "__main__":
-    train_model()

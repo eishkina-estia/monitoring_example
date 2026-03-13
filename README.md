@@ -50,19 +50,34 @@ The configuration is automatically loaded by `src/common.py`.
 
 ## Training Workflow
 
-The training workflow consists of three steps:
-1. Preprocess data
-   * loads the raw dataset
-   * splits train/test data
-   * applies preprocessing (scaling)
-   * saves (X_train, X_test, y_train, y_test, preprocessor) to `data/processed.pkl`
-2. Train models and log experiments with MLflow
-   * runs a small hyperparameter search
-   * logs parameters, metrics, and models
-   * registers the best model in the MLflow model registry 
-3. Load and test the latest registered model
-   * loads the most recent model version
-   * run predictions on a sample from the preprocessed test dataset 
+The training workflow consists of the following steps:
+
+1. **Load raw data**
+   - read the raw CSV dataset
+   - split data into train and test sets
+
+2. **Preprocess data**
+   - check missing values
+   - apply feature scaling with `StandardScaler`
+   - save preprocessing artifacts to `data/processed/processed.pkl`
+
+3. **Train model**
+   - run a small hyperparameter search with ElasticNet
+   - log parameters, metrics, and model artifacts to MLflow
+   - register the best model in the MLflow model registry
+
+4. **Save monitoring reference data**
+   - save the raw training reference dataset to `data/monitoring/reference.pkl`
+   - this file is intended to be used later by Evidently for drift detection
+
+5. **Load and test the latest model**
+   - load the latest registered model
+   - run predictions on a small test sample
+
+The pipeline entry point is:
+```
+src/training/run_training_pipeline.py
+```
 
 Training should be executed inside Docker so that the same environment is used for both training and serving.
 ```shell

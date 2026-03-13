@@ -200,6 +200,20 @@ Open the Prometheus dashboard:
 http://localhost:9090
 ```
 
+## Grafana Dashboards
+
+Grafana is used to visualize the metrics collected by Prometheus and to provide dashboards for monitoring the application and the infrastructure.
+
+Grafana will be available at:
+```
+http://localhost:3000
+```
+Default credentials:
+```
+username: admin
+password: admin
+```
+
 ## Docker Workflow Summary
 
 Typical workflow:
@@ -220,4 +234,8 @@ http://localhost:8000/docs
    * Prometheus:
 ```
 http://localhost:9090
+```
+   * Grafana:
+```
+http://localhost:3000
 ```

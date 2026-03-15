@@ -8,6 +8,15 @@ services:
       - ./:/app
     command: python -m src.training.run_training_pipeline
 
+  evidently-report:
+    profiles: ["monitoring"]
+    build: .
+    container_name: wine_evidently_report
+    working_dir: /app
+    volumes:
+      - ./:/app
+    command: python -m src.monitoring.evidently.generate_report
+
   api:
     build: .
     container_name: wine_api

@@ -177,7 +177,7 @@ Example request:
   "density": 0.9978,
   "pH": 3.51,
   "sulphates": 0.56,
-  Lalcohol": 9.4
+  "alcohol": 9.4
 }
 ```
 
@@ -192,7 +192,7 @@ Example response:
 
 ## Monitoring with Prometheus
 
-Prometheus metrics are exposed by the FastAPI application.
+[Prometheus](https://prometheus.io/) metrics are exposed by the FastAPI application.
 
 Metrics include:
 * prediction_requests_total: number of inference requests
@@ -217,7 +217,7 @@ http://localhost:9090
 
 ## Grafana Dashboards
 
-Grafana is used to visualize the metrics collected by Prometheus and to provide dashboards for monitoring the application and the infrastructure.
+[Grafana](https://grafana.com/) is used to visualize the metrics collected by Prometheus and to provide dashboards for monitoring the application and the infrastructure.
 
 Grafana will be available at:
 ```
@@ -229,28 +229,131 @@ username: admin
 password: admin
 ```
 
-## Docker Workflow Summary
+## Monitoring with Evidently
+
+This project includes a simple data drift monitoring pipeline using [Evidently](https://evidentlyai.com/).
+
+The monitoring workflow compares new data batches with a reference dataset generated during training.
+
+### Reference dataset
+
+During training, a reference dataset is saved:
+```
+data/monitoring/reference.pkl
+```
+
+The reference file contains:
+```
+X_ref        # feature values used for training
+y_ref_true   # true target values
+y_ref_pred   # predictions produced by the trained model
+```
+This dataset represents the baseline distribution used to detect drift in production data.
+
+### Drift scenarios
+
+Synthetic drift datasets are generated for testing monitoring:
+```
+data/monitoring/drift_scenarios/
+ ├─ feature_drift.csv   # distribution shift in several features
+ ├─ target_drift.csv    # change in target distribution 
+ └─ concept_drift.csv   # strong feature shift and degraded target relationship 
+```
+These files are generated locally:
+```shell
+python -m data.monitoring.drift_scenarios.generate_drift_scenarios
+```
+
+### Generate drift reports
+
+Run the Evidently monitoring script:
+```shell
+python -m src.monitoring.evidently.generate_report
+```
+or inside Docker:
+```shell
+docker compose --profile monitoring run --rm evidently-report
+```
+
+This will:
+* Load the reference dataset
+* Load each drift scenario CSV
+* Run Evidently drift analysis
+* Generate HTML reports
+
+Reports are saved to:
+```
+src/monitoring/evidently/reports/
+```
+
+Each report includes:
+* Dataset drift detection
+* Feature-level drift statistics
+* Target drift
+* Summary statistics
+
+The monitoring report uses [DataDriftPreset](https://docs.evidentlyai.com/metrics/preset_data_drift) and [DataSummaryPreset](https://docs.evidentlyai.com/metrics/preset_data_summary) from Evidently.
+
+## Workflow Summary
 
 Typical workflow:
 
 1. Train the model
-```shell
-docker compose --profile training run --rm train
-```
-2. Start serving + monitoring
-```shell
-docker compose up
-```
-3. Access services
-   * FastAPI API:
-```
-http://localhost:8000/docs
-```
-   * Prometheus:
-```
-http://localhost:9090
-```
-   * Grafana:
-```
-http://localhost:3000
-```
+   ```shell
+   docker compose --profile training run --rm train
+   ```
+   This step:
+   * trains the ML model
+   * registers it in MLflow
+   * generates the monitoring reference dataset
+   
+   Generated artifacts:
+   ```
+   data/processed/processed.pkl
+   data/monitoring/reference.pkl
+   # mlflow model artifacts
+   ```
+2. Start serving and runtime monitoring   
+   Start the application stack:
+   * FastAPI for model serving
+   * Prometheus for metrics collection
+   * Grafana for monitoring dashboards
+   ```shell
+   docker compose up
+   ```
+
+   Access services
+   * **FastAPI API**   
+     Interactive API documentation:
+     ```
+     http://localhost:8000/docs
+     ```
+   * **Prometheus**   
+     Metrics and scraping configuration:
+     ```
+     http://localhost:9090
+     ```
+   * **Grafana**   
+     Monitoring dashboards:
+     ```
+     http://localhost:3000
+     ```
+   Default credentials (if unchanged):
+   ```
+   admin / admin
+   ```
+
+3. Generate offline drift reports
+
+   Drift reports are generated offline using Evidently.   
+   ```shell
+   docker compose --profile monitoring run --rm evidently-report
+   ```
+
+   This step compares new data with the reference dataset generated during training.
+   For demonstration purposes, the project currently uses pre-generated drift scenario datasets.
+   
+   Reports are saved to:
+   ```
+   src/monitoring/evidently/reports/
+   ```

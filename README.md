@@ -283,7 +283,7 @@ This will:
 
 Reports are saved to:
 ```
-src/monitoring/evidently/reports/
+./reports/evidently/
 ```
 
 Each report includes:
@@ -355,5 +355,5 @@ Typical workflow:
    
    Reports are saved to:
    ```
-   src/monitoring/evidently/reports/
+   ./reports/evidently/
    ```

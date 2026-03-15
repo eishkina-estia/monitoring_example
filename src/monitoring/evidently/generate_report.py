@@ -6,11 +6,10 @@ from src.monitoring.evidently.evidently_utils import (
     generate_drift_report
 )
 
-REPORTS_DIR = os.path.join(os.path.dirname(__file__), "reports")
-
 from src import common as common
 SCENARIOS_DIR = common.CONFIG["paths"]["monitoring"]["drift_scenarios_dir"]
 SCENARIO_FILES = common.CONFIG["monitoring"]["drift_scenarios_files"]
+REPORTS_DIR = common.CONFIG["paths"]["monitoring"]["evidently_reports_dir"]
 
 def generate_report_for_file(csv_path: str, reference_df, feature_columns):
 

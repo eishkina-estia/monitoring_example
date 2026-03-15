@@ -12,7 +12,7 @@ venv/
 data/processed/
 data/monitoring/reference/
 #data/monitoring/drift_scenarios/*.csv
-src/monitoring/evidently/reports/
+reports/
 
 # MLflow artifacts
 mlruns/

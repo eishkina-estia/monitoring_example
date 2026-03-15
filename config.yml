@@ -3,7 +3,8 @@ paths:
   data_processed: ./data/processed/processed.pkl
   monitoring:
     data_reference: ./data/monitoring/reference/reference.pkl
-    drift_scenarios_dir: ./data/monitoring/drift_scenarios
+    drift_scenarios_dir: ./data/monitoring/drift_scenarios/
+    evidently_reports_dir: ./reports/evidently/
   mlflow_db: ./mlflow.db
   mlruns: ./mlruns
 mlflow:

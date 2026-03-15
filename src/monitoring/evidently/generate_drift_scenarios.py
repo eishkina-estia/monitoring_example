@@ -6,7 +6,13 @@ import pandas as pd
 
 from src import common as common
 DATA_MONITORING_REF_PATH = common.CONFIG['paths']['monitoring']['data_reference']
-OUTPUT_DIR = os.path.dirname(__file__)
+DRIFT_SCENARIOS_DIR = common.CONFIG["paths"]["monitoring"]["drift_scenarios_dir"]
+
+DRIFT_SCENARIO_FILE_FEATURE = "feature_drift.csv"
+DRIFT_SCENARIO_FILE_TARGET = "target_drift.csv"
+DRIFT_SCENARIO_FILE_CONCEPT = "concept_drift.csv"
+
+from src.monitoring.evidently.evidently_utils import COL_NAME_TARGET_TRUE
 
 np.random.seed(42)
 
@@ -33,9 +39,9 @@ def generate_feature_drift(X_ref, y_ref):
     for col in selected_cols:
         X_drift[col] = X_drift[col] * 1.25 + np.random.normal(0, 0.1, len(X_drift))
 
-    df = pd.concat([X_drift, y_ref.rename("target")], axis=1)
+    df = pd.concat([X_drift, y_ref.rename(COL_NAME_TARGET_TRUE)], axis=1)
 
-    path = os.path.join(OUTPUT_DIR, "feature_drift.csv")
+    path = os.path.join(DRIFT_SCENARIOS_DIR, DRIFT_SCENARIO_FILE_FEATURE)
     df.to_csv(path, index=False)
     print(f"Data saved {path}")
 
@@ -46,9 +52,9 @@ def generate_target_drift(X_ref, y_ref):
     y_drift = y_ref.copy()
     y_drift = y_drift + np.random.normal(0.5, 0.2, len(y_drift))
 
-    df = pd.concat([X_ref, y_drift.rename("target")], axis=1)
+    df = pd.concat([X_ref, y_drift.rename(COL_NAME_TARGET_TRUE)], axis=1)
 
-    path = os.path.join(OUTPUT_DIR, "target_drift.csv")
+    path = os.path.join(DRIFT_SCENARIOS_DIR, DRIFT_SCENARIO_FILE_TARGET)
     df.to_csv(path, index=False)
     print(f"Saved {path}")
 
@@ -68,9 +74,9 @@ def generate_concept_drift(X_ref, y_ref):
 
     y_drift = y_drift + np.random.normal(1.0, 0.5, len(y_drift))
 
-    df = pd.concat([X_drift, y_drift.rename("target")], axis=1)
+    df = pd.concat([X_drift, y_drift.rename(COL_NAME_TARGET_TRUE)], axis=1)
 
-    path = os.path.join(OUTPUT_DIR, "concept_drift.csv")
+    path = os.path.join(DRIFT_SCENARIOS_DIR, DRIFT_SCENARIO_FILE_CONCEPT)
     df.to_csv(path, index=False)
     print(f"Saved {path}")
 

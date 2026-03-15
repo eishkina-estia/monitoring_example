@@ -7,8 +7,8 @@ from src.monitoring.evidently.evidently_utils import (
 )
 
 from src import common as common
-SCENARIOS_DIR = common.CONFIG["paths"]["monitoring"]["drift_scenarios_dir"]
-SCENARIO_FILES = common.CONFIG["monitoring"]["drift_scenarios_files"]
+DRIFT_SCENARIOS_DIR = common.CONFIG["paths"]["monitoring"]["drift_scenarios_dir"]
+DRIFT_SCENARIOS_FILES = common.CONFIG["monitoring"]["drift_scenarios_files"]
 REPORTS_DIR = common.CONFIG["paths"]["monitoring"]["evidently_reports_dir"]
 
 def generate_report_for_file(csv_path: str, reference_df, feature_columns):
@@ -26,8 +26,8 @@ if __name__ == "__main__":
 
     reference_df, feature_columns = build_reference_dataframe()
 
-    for filename in SCENARIO_FILES:
-        csv_path = os.path.join(SCENARIOS_DIR, filename)
+    for filename in DRIFT_SCENARIOS_FILES:
+        csv_path = os.path.join(DRIFT_SCENARIOS_DIR, filename)
 
         if not os.path.exists(csv_path):
             raise FileNotFoundError(f"File not found: {csv_path}")

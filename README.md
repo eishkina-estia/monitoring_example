@@ -261,7 +261,7 @@ data/monitoring/drift_scenarios/
 ```
 These files are generated locally:
 ```shell
-python -m data.monitoring.drift_scenarios.generate_drift_scenarios
+python -m src.monitoring.evidently.generate_drift_scenarios
 ```
 
 ### Generate drift reports
@@ -345,13 +345,17 @@ Typical workflow:
 
 3. Generate offline drift reports
 
-   Drift reports are generated offline using Evidently.   
+   Drift reports are generated offline using Evidently. For demonstration purposes, the project currently uses static drift scenario datasets.
+   
+   Generate drift scenario datasets from the reference dataset: 
+   ```shell
+   python -m src.monitoring.evidently.generate_drift_scenarios
+   ```
+   
+   Generate reports:
    ```shell
    docker compose --profile monitoring run --rm evidently-report
    ```
-
-   This step compares new data with the reference dataset generated during training.
-   For demonstration purposes, the project currently uses pre-generated drift scenario datasets.
    
    Reports are saved to:
    ```

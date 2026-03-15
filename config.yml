@@ -1,7 +1,9 @@
 paths:
   data_raw: ./data/raw/wine-quality.csv
   data_processed: ./data/processed/processed.pkl
-  data_monitoring: ./data/monitoring/reference.pkl
+  monitoring:
+    data_reference: ./data/monitoring/reference/reference.pkl
+    drift_scenarios_dir: ./data/monitoring/drift_scenarios
   mlflow_db: ./mlflow.db
   mlruns: ./mlruns
 mlflow:
@@ -11,3 +13,8 @@ mlflow:
 ml:
   target_name: quality
   random_state: 42
+monitoring:
+  drift_scenarios_files:
+    - feature_drift.csv
+    - target_drift.csv
+    - concept_drift.csv

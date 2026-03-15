@@ -5,14 +5,14 @@ import numpy as np
 import pandas as pd
 
 from src import common as common
-DATA_MONITORING_PATH = common.CONFIG['paths']['data_monitoring']
+DATA_MONITORING_REF_PATH = common.CONFIG['paths']['monitoring']['data_reference']
 OUTPUT_DIR = os.path.dirname(__file__)
 
 np.random.seed(42)
 
 def load_reference_data():
     """Load monitoring reference dataset."""
-    with open(DATA_MONITORING_PATH, "rb") as f:
+    with open(DATA_MONITORING_REF_PATH, "rb") as f:
         ref = pickle.load(f)
 
     X_ref = ref["X_ref"].copy()

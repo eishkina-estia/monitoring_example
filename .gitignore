@@ -11,7 +11,7 @@ venv/
 # Generated data
 data/processed/
 data/monitoring/reference/
-data/monitoring/drift_scenarios/*.csv
+#data/monitoring/drift_scenarios/*.csv
 src/monitoring/evidently/reports/
 
 # MLflow artifacts

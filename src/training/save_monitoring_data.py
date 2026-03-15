@@ -3,7 +3,7 @@ import pickle
 import pandas as pd
 
 from src import common as common
-DATA_MONITORING_PATH = common.CONFIG['paths']['data_monitoring']
+DATA_MONITORING_REF_PATH = common.CONFIG['paths']['monitoring']['data_reference']
 
 from src.training.training_utils import load_latest_model, load_preprocessor
 
@@ -30,10 +30,10 @@ def save_monitoring_reference_data(X_raw, y):
         "y_ref_pred": y_pred
     }
 
-    monitoring_dir = os.path.dirname(DATA_MONITORING_PATH)
+    monitoring_dir = os.path.dirname(DATA_MONITORING_REF_PATH)
     os.makedirs(monitoring_dir, exist_ok=True)
 
-    with open(DATA_MONITORING_PATH, "wb") as file:
+    with open(DATA_MONITORING_REF_PATH, "wb") as file:
         pickle.dump(reference_data, file)
 
-    print(f"Reference monitoring data saved to {DATA_MONITORING_PATH}")
+    print(f"Reference monitoring data saved to {DATA_MONITORING_REF_PATH}")

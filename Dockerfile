@@ -8,6 +8,4 @@ RUN pip install --no-cache-dir --upgrade pip && \
 
 COPY src ./src
 COPY config.yml ./config.yml
-COPY data ./data
-
-#CMD ["uvicorn", "src.serving.api:app", "--host", "0.0.0.0", "--port", "8000"]
+COPY data/raw ./data/raw

@@ -1,0 +1,2 @@
+-r base.txt
+scikit-learn>=1.2,<1.5

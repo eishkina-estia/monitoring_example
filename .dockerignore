@@ -1,0 +1,28 @@
+.git
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environments
+venv/
+.venv/
+
+# Generated data
+data/processed/
+data/monitoring/reference/
+reports/
+
+# MLflow artifacts
+mlruns/
+mlflow.db
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db

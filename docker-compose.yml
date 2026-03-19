@@ -1,7 +1,9 @@
 services:
   train:
     profiles: ["training"]
-    build: .
+    build:
+      context: .
+      target: training
     container_name: wine_model_train
     working_dir: /app
     volumes:
@@ -10,7 +12,9 @@ services:
 
   evidently-report:
     profiles: ["monitoring"]
-    build: .
+    build:
+      context: .
+      target: monitoring
     container_name: wine_evidently_report
     working_dir: /app
     volumes:
@@ -18,7 +22,9 @@ services:
     command: python -m src.monitoring.evidently.generate_report
 
   api:
-    build: .
+    build:
+      context: .
+      target: serving
     container_name: wine_api
     working_dir: /app
     ports:

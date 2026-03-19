@@ -31,6 +31,12 @@ async def lifespan(app: FastAPI):
     """Load model artifacts once when the API starts."""
     print("Start API")
     app_state.update(load_inference_artifacts())
+
+    MODEL_INFO.labels(
+        model_name=app_state["model_name"],
+        model_version=app_state["model_version"],
+    ).set(1)
+
     yield
     print("Stop API")
 
@@ -98,6 +104,8 @@ def predict(payload: WineFeatures, request: Request):
 def metrics():
     """Prometheus metrics endpoint."""
     return Response(
+        # Collects all registered Prometheus metrics and formats them into the Prometheus text format
         content=generate_latest(),
+        # Sets the correct content type required for Prometheus to parse metrics correctly
         media_type=CONTENT_TYPE_LATEST,
     )
